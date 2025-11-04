@@ -2,6 +2,7 @@
 const productos = document.createDocumentFragment();
 const tableContainer = document.querySelector("#tableContainer")
 const miFormulario = document.querySelector("#miFormulario")
+const mensajeError = document.querySelector("#mensajeError")
 
 
 // const arrayLocal = [
@@ -136,6 +137,7 @@ const validarProducto = (producto) =>{
     if(regExp.test(producto))return true;
     else {
         //alert("El producto debe ser de tipo texto");
+        mensajeError.style.display = "";
         return false;
     }
 }
@@ -151,7 +153,7 @@ const validarProducto = (producto) =>{
 const agregarProducto = (producto) =>{
     // si el producto está correctamente escrito
     if(validarProducto(producto)){
-        console.log('agregar producto')
+        mensajeError.style.display = "none";
         const arrayLocal = obtenerLocal("productos")
         const index = arrayLocal.findIndex((elemento)=> elemento.nombre == producto.toLowerCase()) 
         console.log(index);       

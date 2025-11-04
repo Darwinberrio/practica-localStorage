@@ -65,6 +65,17 @@ form{
    
 }
 
+#mensajeError{
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    color: black;
+    background: red;
+    padding: 30px;
+    font-size: 1.5rem;
+}
+
 #tableContainer{
     display: grid;
     grid-template-columns: 1fr;
