@@ -37,82 +37,23 @@ document.addEventListener('click', (ev) => {
 
 
 /**************************FUNCIONES**************************/
-
 /**
- * función para añadir un producto a la lista de la compra
- * @param {array} arrayLocal array con los objetos de los productos
- * @param {String} arrayLocal.elemento.nombre nombre del producto
- * @param {Number} arrayLocal.elemento.contador número de productos
- * 
+ * Obtener el array del LocalStorage
+ * @param {String} identificador 
+ * @returns {Array}
  */
-
-const agregarProducto = (producto) =>{
-    // si el producto está correctamente escrito
-    if(validarProducto(producto)){
-        console.log('agregar producto')
-        const arrayLocal =JSON.parse(localStorage.getItem("productos")) || []
-        const index = arrayLocal.findIndex((elemento)=> elemento.nombre == producto.toLowerCase()) 
-        console.log(index);       
-        if(index != -1){
-            // si está ese producto, subir el contador
-            arrayLocal[index].contador += 1
-                        
-        }else {
-            //si no está, crear un contador y agregar el producto
-            const nuevoProducto ={
-                id: producto.toLowerCase(),
-                nombre: producto.toLowerCase(),
-                contador: 1
-            }
-            arrayLocal.push(nuevoProducto);
-            console.log(arrayLocal);
-        }
-        localStorage.setItem("productos", JSON.stringify(arrayLocal));
-        pintarTabla();
-    } else {
-        alert("El producto debe ser de tipo texto");
-    }
-    
-}
-/**
- * Funcion para verificar que una variable e
- * @param {undefined} producto
- * @return {boolean} 
- */
-const validarProducto = (producto) =>{
-    if(typeof(producto)== 'string')return true;
-    else return false;
+const obtenerLocal = (identificador) =>{
+    return JSON.parse(localStorage.getItem(identificador)) || []
 }
 
 /**
- * Pintar la tabla recogiendo los valores desde el localStorage
- * @return {undefined}
+ * Setear el array del LocalStorage
+ * @param {String} identificador 
+ * @param {Array} array
  */
-const pintarTabla = () => {
-    // Vaciamos contenido anterior
-    tableContainer.innerHTML="";
-    //Obtener los productos
-    const productos = JSON.parse(localStorage.getItem('productos')) || []
-    if (productos.length == 0){
-        tableContainer.style.display = "none"
-    }else{
-        tableContainer.style.display = ""
-        //Crear tabla
-        const tabla = document.createElement('TABLE')
-        //Añadir cabezal
-        tabla.append(pintarCabezalTabla());
-
-        //Recorrer los objetos
-        productos.forEach(element => {   
-            //Añadir fila por elemento
-            tabla.append(pintarCuerpoTabla(element))       
-        })
-        //Añadir la tabla al document
-        tableContainer.append(tabla);
-    }
-
-};
-
+const setearLocal = (identificador, array) =>{
+    return localStorage.setItem(identificador, JSON.stringify(array));
+}
 
 /**
  * Devuelve la fila encabezado de la tabla
@@ -155,6 +96,85 @@ const pintarCuerpoTabla = (element) =>{
     return filaNueva
 }
 
+/**
+ * Pintar la tabla recogiendo los valores desde el localStorage
+ * @return {undefined}
+ */
+const pintarTabla = () => {
+    // Vaciamos contenido anterior
+    tableContainer.innerHTML="";
+    //Obtener los productos
+    const productos = obtenerLocal("productos")
+    if (productos.length == 0){
+        tableContainer.style.display = "none"
+    }else{
+        tableContainer.style.display = ""
+        //Crear tabla
+        const tabla = document.createElement('TABLE')
+        //Añadir cabezal
+        tabla.append(pintarCabezalTabla());
+
+        //Recorrer los objetos
+        productos.forEach(element => {   
+            //Añadir fila por elemento
+            tabla.append(pintarCuerpoTabla(element))       
+        })
+        //Añadir la tabla al document
+        tableContainer.append(tabla);
+    }
+
+};
+
+
+/**
+ * Funcion para verificar que una variable e
+ * @param {string} producto
+ * @return {boolean} 
+ */
+const validarProducto = (producto) =>{
+    const regExp = /^(?=.*\p{L})[^\d]*$/u
+    if(regExp.test(producto))return true;
+    else {
+        //alert("El producto debe ser de tipo texto");
+        return false;
+    }
+}
+
+/**
+ * función para añadir un producto a la lista de la compra
+ * @param {array} arrayLocal array con los objetos de los productos
+ * @param {String} arrayLocal.elemento.nombre nombre del producto
+ * @param {Number} arrayLocal.elemento.contador número de productos
+ * 
+ */
+
+const agregarProducto = (producto) =>{
+    // si el producto está correctamente escrito
+    if(validarProducto(producto)){
+        console.log('agregar producto')
+        const arrayLocal = obtenerLocal("productos")
+        const index = arrayLocal.findIndex((elemento)=> elemento.nombre == producto.toLowerCase()) 
+        console.log(index);       
+        if(index != -1){
+            // si está ese producto, subir el contador
+            arrayLocal[index].contador += 1
+            setearLocal("productos", arrayLocal)
+                        
+        }else {
+            //si no está, crear un contador y agregar el producto
+            const nuevoProducto ={
+                id: producto.toLowerCase(),
+                nombre: producto.toLowerCase(),
+                contador: 1
+            }
+            const arrayNuevo = [...arrayLocal,nuevoProducto];
+            setearLocal("productos", arrayNuevo)
+        }
+        
+        pintarTabla();
+    }
+    
+}
 
 
 
@@ -166,11 +186,10 @@ const quitarProducto = (identificador) => {
     // hacer un evento que detecte el id del boton eliminar,
     // ese botón eliminar tedría que tener un id con el nombre de la fruta
     // si se le da al boton eliminar hay que modificar el array,
-    let arrayLocal = JSON.parse(localStorage.getItem('productos')) || []
+    let arrayLocal = obtenerLocal('productos')
     
     // cogemos el indice del array donde se encuentra elemento con el id = identificador
     const index = arrayLocal.findIndex(element=> element.id == identificador)
-    console.log(index)
     // y restarle una unidad al producto.
     arrayLocal[index]['contador']--;
     if (arrayLocal[index].contador === 0) {
@@ -178,11 +197,8 @@ const quitarProducto = (identificador) => {
         arrayLocal.splice(index,1);
     }      
     
-    localStorage.setItem("productos", JSON.stringify(arrayLocal));
-    pintarTabla();
-
-
-    
+    setearLocal("productos", arrayLocal)
+    pintarTabla();  
 }
 
 /**************************INVOCACIONES**************************/
